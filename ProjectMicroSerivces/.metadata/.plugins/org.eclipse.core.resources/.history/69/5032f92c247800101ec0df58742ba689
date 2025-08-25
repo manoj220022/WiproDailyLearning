@@ -1,0 +1,62 @@
+package com.example.wipro.services;
+
+import com.example.wipro.dto.PaymentResponse;
+import com.example.wipro.entities.Payment;
+import com.example.wipro.enums.PaymentStatus;
+import com.example.wipro.exceptions.ResourceNotFoundException;
+import com.example.wipro.feign.PropertyClient;
+import com.example.wipro.feign.UserClient;
+import com.example.wipro.repos.PaymentRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final PropertyClient propertyClient;
+    private final UserClient userClient;
+
+    @Transactional
+    public PaymentResponse makePayment(Long bookingId, Long propertyId, Long userId, BigDecimal amount) {
+        // Fetch property
+        var property = propertyClient.getPropertyById(propertyId);
+        if (property == null) {
+            throw new ResourceNotFoundException("Property not found with ID: " + propertyId);
+        }
+
+        // Fetch user
+        var user = userClient.getUserById(userId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found with ID: " + userId);
+        }
+
+        // Validate amount against property price
+        if (amount.compareTo(property.pricePerDay()) < 0) {
+            throw new IllegalArgumentException("Amount is less than the required property price per day");
+        }
+
+        // Create initial payment
+        Payment payment = Payment.builder()
+                
+                .propertyId(propertyId)
+                .userId(userId)
+                .amount(amount)
+                .status(PaymentStatus.PENDING)
+                .paymentDate(LocalDateTime.now())
+                .build();
+
+        paymentRepository.save(payment);
+
+        // Simulate payment success
+        payment.setStatus(PaymentStatus.COMPLETED);
+        paymentRepository.save(payment);
+
+        return PaymentResponse.fromEntity(payment);
+    }
+}

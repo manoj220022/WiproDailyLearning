@@ -1,0 +1,49 @@
+package com.example.wipro.controllers;
+
+import com.example.wipro.entities.House;
+import com.example.wipro.enums.Facility;
+import com.example.wipro.services.PropertyHouseService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/houses")
+@RequiredArgsConstructor
+public class PropertyController {
+
+    private final PropertyHouseService houseService;
+
+    @GetMapping
+    public ResponseEntity<List<House>> getAllHouses() {
+        return ResponseEntity.ok(houseService.getAllHouses());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<House> getHouseById(@PathVariable Long id) {
+        return ResponseEntity.ok(houseService.getHouseById(id));
+    }
+
+    @GetMapping("/facility/{facility}")
+    public ResponseEntity<List<House>> getHousesByFacility(@PathVariable Facility facility) {
+        return ResponseEntity.ok(houseService.getHousesByFacility(facility));
+    }
+
+    @PostMapping
+    public ResponseEntity<House> createHouse(@RequestBody House house) {
+        return ResponseEntity.ok(houseService.createHouse(house));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<House> updateHouse(@PathVariable Long id, @RequestBody House house) {
+        return ResponseEntity.ok(houseService.updateHouse(id, house));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHouse(@PathVariable Long id) {
+        houseService.deleteHouse(id);
+        return ResponseEntity.noContent().build();
+    }
+}

@@ -1,0 +1,5 @@
+package com.example.wipro.enums;
+
+public enum NotificationType {
+
+}

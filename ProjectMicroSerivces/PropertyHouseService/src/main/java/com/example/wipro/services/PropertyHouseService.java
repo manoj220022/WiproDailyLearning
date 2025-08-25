@@ -1,0 +1,47 @@
+package com.example.wipro.services;
+
+import com.example.wipro.entities.House;
+import com.example.wipro.enums.Facility;
+import com.example.wipro.repos.HouseRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class PropertyHouseService {
+
+    private final HouseRepository houseRepository;
+
+    public List<House> getAllHouses() {
+        return houseRepository.findAll();
+    }
+
+    public House getHouseById(Long id) {
+        return houseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("House not found with id: " + id));
+    }
+
+    public List<House> getHousesByFacility(Facility facility) {
+        return houseRepository.findByFacility(facility);
+    }
+
+    public House createHouse(House house) {
+        return houseRepository.save(house);
+    }
+
+    public House updateHouse(Long id, House houseDetails) {
+        House house = getHouseById(id);
+        house.setName(houseDetails.getName());
+        house.setAddress(houseDetails.getAddress());
+        house.setPricePerDay(houseDetails.getPricePerDay());
+        house.setFacilities(houseDetails.getFacilities());
+        house.setDescription(houseDetails.getDescription());
+        return houseRepository.save(house);
+    }
+
+    public void deleteHouse(Long id) {
+        houseRepository.deleteById(id);
+    }
+}

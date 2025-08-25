@@ -1,0 +1,60 @@
+package com.example.wipro.services;
+
+import com.example.wipro.entities.Payment;
+import com.example.wipro.enums.PaymentStatus;
+import com.example.wipro.feign.PropertyClient;
+import com.example.wipro.feign.UserClient;
+import com.example.wipro.repos.PaymentRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final PropertyClient propertyClient;
+    private final UserClient userClient;
+
+    public Payment makePayment(Long bookingId, Long propertyId, Long userId, BigDecimal amount) {
+        // Fetch property
+        var property = propertyClient.getPropertyById(propertyId);
+        if (property == null || property.isEmpty()) {
+            throw new IllegalArgumentException("Property not found with ID: " + propertyId);
+        }
+
+        // Fetch user
+        Map<String, Object> user = userClient.getUserById(userId);
+        if (user == null || user.isEmpty()) {
+            throw new IllegalArgumentException("User not found with ID: " + userId);
+        }
+
+        // Extract price from property response
+        BigDecimal pricePerDay = new BigDecimal(property.get("pricePerDay").toString());
+
+        // Validate amount
+        if (amount.compareTo(pricePerDay) < 0) {
+            throw new IllegalArgumentException("Amount is less than the required property price per day");
+        }
+
+        // Create initial payment
+        Payment payment = Payment.builder()
+              
+                .propertyId(propertyId)
+                .userId(userId)
+                .amount(amount)
+                .status(PaymentStatus.PENDING)
+                .paymentDate(LocalDateTime.now())
+                .build();
+
+        payment = paymentRepository.save(payment);
+
+        // Simulate success
+        payment.setStatus(PaymentStatus.COMPLETED);
+        return paymentRepository.save(payment);
+    }
+}

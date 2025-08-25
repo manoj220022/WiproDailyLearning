@@ -1,0 +1,25 @@
+package com.example.wipro.controllers;
+
+import com.example.wipro.dto.PaymentRequest;
+import com.example.wipro.entities.Payment;
+import com.example.wipro.services.PaymentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/payments")
+@RequiredArgsConstructor
+public class PaymentController {
+
+    private final PaymentService paymentService;
+
+    @PostMapping("/make")
+    public Payment makePayment(@RequestBody PaymentRequest request) {
+        return paymentService.makePayment(
+                null, // bookingId is not used
+                request.getPropertyId(),
+                request.getUserId(),
+                request.getAmount()
+        );
+    }
+}

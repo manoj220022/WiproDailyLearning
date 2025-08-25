@@ -1,0 +1,5 @@
+package com.example.wipro.exceptions;
+
+public class ResourceNotFoundException {
+
+}

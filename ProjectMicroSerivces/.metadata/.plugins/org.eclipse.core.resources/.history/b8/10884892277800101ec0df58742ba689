@@ -1,0 +1,12 @@
+package com.example.wipro.dto;
+
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+public class PaymentRequest {
+    private Long propertyId;
+    private Long userId;
+    private BigDecimal amount;
+}

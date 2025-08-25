@@ -1,0 +1,26 @@
+package com.example.wipro.controllers;
+
+import com.example.wipro.entities.Payment;
+import com.example.wipro.services.PaymentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+
+@RestController
+@RequestMapping("/api/v1/payments")
+@RequiredArgsConstructor
+public class PaymentController {
+
+    private final PaymentService paymentService;
+
+    @PostMapping("/make")
+    public Payment makePayment(
+            @RequestParam Long bookingId,
+            @RequestParam Long propertyId,
+            @RequestParam Long userId,
+            @RequestParam BigDecimal amount
+    ) {
+        return paymentService.makePayment(bookingId, propertyId, userId, amount);
+    }
+}

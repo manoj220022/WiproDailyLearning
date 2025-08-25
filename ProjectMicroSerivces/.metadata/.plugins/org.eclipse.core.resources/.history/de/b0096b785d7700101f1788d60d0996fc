@@ -1,0 +1,5 @@
+package com.example.wipro.feign;
+
+public interface PropertyClient {
+
+}

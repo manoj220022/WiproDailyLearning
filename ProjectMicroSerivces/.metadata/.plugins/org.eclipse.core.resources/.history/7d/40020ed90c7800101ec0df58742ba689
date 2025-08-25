@@ -1,0 +1,44 @@
+package com.example.wipro.services;
+
+import com.example.wipro.entities.Payment;
+import com.example.wipro.enums.PaymentStatus;
+import com.example.wipro.feign.PropertyClient;
+import com.example.wipro.repos.PaymentRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentRepository paymentRepository;
+    private final PropertyClient propertyClient;
+
+    public Payment makePayment(Long bookingId, Long propertyId, Long userId, BigDecimal amount) {
+       
+        var property = propertyClient.getPropertyById(propertyId);
+
+       
+        if (amount.compareTo(property.pricePerDay()) < 0) {
+            throw new IllegalArgumentException("Amount is less than the required property price per day");
+        }
+
+        Payment payment = Payment.builder()
+               
+                .propertyId(propertyId)
+                .userId(userId)
+                .amount(amount)
+                .status(PaymentStatus.PENDING)
+                .paymentDate(LocalDateTime.now())
+                .build();
+
+        payment = paymentRepository.save(payment);
+
+        // Simulate success
+        payment.setStatus(PaymentStatus.COMPLETED);
+        return paymentRepository.save(payment);
+    }
+}
